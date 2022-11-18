@@ -1,5 +1,6 @@
 library(dplyr)
 library(tidyverse)
+library(data.table)
 
 rm(list=ls())
 #Pull in Advanced Data
@@ -26,14 +27,38 @@ names(gamedataadvanced) <- c('muid', 'date', 'conmatch', 'matchup', 'prediction'
 'gamevalue', 'mismatch', 'blowout', 't1elite', 't2elite', 'ord_date', 't1ppp', 't2ppp', 'gameppp',
 't1rk', 't2rk', 't1gs', 't2gs', 'gamestats', 'overtimes', 't1fun', 't2fun', 'results')
 
+#Write for Match
+write.csv(gamedataadvanced, "gamedataadvanced.csv", row.names=FALSE)
+########################################################################################################
+gamedataadvanced <- read_csv("gamedataadvanced.csv")
+
 #REF TABLES
 team_ref <- read_csv("MTeams.csv")
 city_ref <- read_csv("Cities.csv")
 conf_ref <- read_csv("Conferences.csv")
 region_ref <- read_csv("MSeasons.csv")
 seed_ref <- read_csv("MNCAATourneySeeds.csv")
+adv_id <- read_csv("AdvTeams.csv",col_names = FALSE)
 
 #Game Data
 city_results <- read_csv("MGameCities.csv")
 tourney_box_results <- read_csv("MNCAATourneyDetailedResults.csv")
 regular_box_results <- read_csv("MRegularSeasonDetailedResults.csv")
+
+adv_id <- rename(adv_id, winner = X1)
+gamedataadvanced <- merge(gamedataadvanced, adv_id, by="winner")
+gamedataadvanced <- rename(gamedataadvanced, WinId = X2)
+adv_id <- rename(adv_id, loser = winner)
+gamedataadvanced <- merge(gamedataadvanced, adv_id, by="loser")
+gamedataadvanced <- rename(gamedataadvanced, LoseId = X2)
+
+tourney_box_results$Type <- "Tourney"
+regular_box_results$Type <- "Regular"
+
+gamedataregular <- bind_rows(regular_box_results,tourney_box_results)
+gamedataadvanced$join1 <- paste(gamedataadvanced$date,gamedataadvanced$WinId,gamedataadvanced$LoseId)
+gamedataregular$join1 <- paste(gamedataregular$date,gamedataregular$WTeamID,gamedataregular$LTeamID)
+
+full <- merge(gamedataadvanced, gamedataregular, by='join1', all.x=TRUE)
+
+test <- regular_box_results %>% filter(WTeamID == 1188 & LTeamID == 1320)
