@@ -68,7 +68,8 @@ gamedataregular$join1 <- paste(gamedataregular$date,gamedataregular$WTeamID,game
 full <- merge(gamedataadvanced, gamedataregular, by='join1', all.x=TRUE)
 
 tidy <- full %>% select(winner,loser,date.x,conmatch,prediction,team1,t1adjo,t1adjd,t1rk,team2,t2adjo,t2adjd,t2rk,Season,NumOT,Type,WTeamSeed,LTeamSeed,City)
-
+tidy$t1gs <- as.numeric(tidy$t1gs)
+tidy$t2gs <- as.numeric(tidy$t2gs)
 #Creating seeding example
 i=2011
 r1w <- {}
@@ -105,35 +106,48 @@ pred <- {}
 
 for (z in tourney_teams$team) {
 regular1 <- tidy %>%
-  group_by(team1,t1adjo,t1adjd,date.x) %>%
+  group_by(team1,date.x) %>%
   filter(Season == i & Type == "Regular" & team1 == z) %>%
   ungroup() %>%
-  select(t1adjo,t1adjd,date.x,t2rk)
+  select(t1adjo,t1adjd,date.x,t1rk)
 
 regular2 <- tidy %>%
-  group_by(team2,t2adjo,t2adjd,date.x) %>%
+  group_by(team2,date.x) %>%
   filter(Season == i & Type == "Regular" & team2 == z) %>%
   ungroup() %>%
-  select(t2adjo,t2adjd,date.x,t1rk)
-regular1 <- rename(regular1, adjo = t1adjo,adjd = t1adjd,rk = t2rk)
-regular2 <- rename(regular2, adjo = t2adjo,adjd= t2adjd,rk = t1rk)
+  select(t2adjo,t2adjd,date.x,t2rk)
+regular1 <- rename(regular1, adjo = t1adjo,adjd = t1adjd,rk = t1rk)
+regular2 <- rename(regular2, adjo = t2adjo,adjd = t2adjd,rk = t2rk)
 regular3 <- bind_rows(regular1,regular2)
 regular3 <- regular3 %>%
   arrange(date.x)
 
-regular3$adj <- (regular3$adjo + regular3$adjd) /2
-regular3$rk2 <- (358-regular3$rk)/358
-regular3$adj2 <- regular3$adj*regular3$rk2
-myts <- ts(regular3$adj2, frequency=1)
-MA <- arima(myts, order = c(0,0,10))
+regular3$adj <- regular3$adjo - regular3$adjd
+# regular3$rk2 <- (358-regular3$rk)/358
+# regular3$adj2 <- regular3$adj*regular3$rk2
+myts <- ts(regular3$adj, frequency=1)
+MA <- auto.arima(myts,allowdrift = TRUE,allowmean = TRUE, seasonal = FALSE)
 
-predict_MA <- predict(MA)
+# ts.plot(myts)
+# points(MA$fitted, type = "l", col = 2, lty = 2)
 
-pred <- append(pred,predict_MA$pred[1])
+predict_MA <- forecast(MA, h = 1)
+
+pred <- append(pred,predict_MA$mean[1])
 }
 tourney_teams$pred1 <- parse_number(tourney_teams$seed)
 tourney_teams$pred2 <- pred
+f <- min(tourney_teams$pred2)
+g <- 5-f
+tourney_teams$pred2 <- tourney_teams$pred2 + g
 tourney_teams$pred3 <- ((17-tourney_teams$pred1)/17)*tourney_teams$pred2
+tourney_teams <- left_join(tourney_teams, tourney %>% select(team1,t1rk),by = c("team"="team1"))
+tourney_teams <- left_join(tourney_teams, tourney %>% select(team2,t2rk),by = c("team"="team2"))
+tourney_teams$t2rk <- ifelse(is.na(tourney_teams$t2rk),tourney_teams$t1rk,tourney_teams$t2rk)
+tourney_teams$t1rk <- ifelse(is.na(tourney_teams$t1rk),tourney_teams$t2rk,tourney_teams$t1rk)
+tourney_teams$pred4 <- (tourney_teams$t1rk+tourney_teams$t2rk)/2
+tourney_teams <- tourney_teams %>% distinct()
+tourney_teams <- select(tourney_teams,subset = -c(t1rk,t2rk))
 
 year <- paste("tourney",as.character(i), sep = "")
 assign(year,tourney_teams)
@@ -193,7 +207,7 @@ test <- merge(test, mkvremove %>% select(teamseed,pr2), by.x = "LTeamSeed", by.y
 test <- rename(test, pr2.y = pr2)
 test <- test %>%
   arrange(date.x)
-test <- test[32:48,]
+test <- test[33:48,]
 test$pr2.xind <- ifelse(is.na(test$pr2.x),1,0)
 test$pr2.yind <- ifelse(is.na(test$pr2.y),1,0)
 test <- subset(test, select=-c(pr2.x,pr2.y))
@@ -237,7 +251,7 @@ test <- merge(test, mkvremove %>% select(teamseed,pr2), by.x = "LTeamSeed", by.y
 test <- rename(test, pr2.y = pr2)
 test <- test %>%
   arrange(date.x)
-test <- test[32:48,]
+test <- test[33:48,]
 test$pr2.xind <- ifelse(is.na(test$pr2.x),1,0)
 test$pr2.yind <- ifelse(is.na(test$pr2.y),1,0)
 test <- subset(test, select=-c(pr2.x,pr2.y))
@@ -296,7 +310,7 @@ test <- merge(test, mkvremove %>% select(teamseed,pr2), by.x = "LTeamSeed", by.y
 test <- rename(test, pr2.y = pr2)
 test <- test %>%
   arrange(date.x)
-test <- test[32:48,]
+test <- test[33:48,]
 test$pr2.xind <- ifelse(is.na(test$pr2.x),1,0)
 test$pr2.yind <- ifelse(is.na(test$pr2.y),1,0)
 test <- subset(test, select=-c(pr2.x,pr2.y))
@@ -312,19 +326,78 @@ testblend2 <- sum(test$test)/16
 year <- paste("blend",as.character(i),"r2", sep = "")
 assign(year,testblend2)
 
+#TARV
 
 
-if (testblend >= testseed){
+mkv4 <- merge(prob, tourney_teams %>% select(seed, team, pred4), by.x = "teamseed", by.y = "seed")
+mkv4 <- rename(mkv4, prob1 = pred4)
+mkv4 <- merge(mkv4, tourney_teams %>% select(seed, pred4), by.x = "opp1", by.y = "seed")
+mkv4 <- rename(mkv4, prob2 = pred4)
+mkv4 <- merge(mkv4, tourney_teams %>% select(seed, pred4), by.x = "opp2", by.y = "seed")
+mkv4 <- rename(mkv4, prob3 = pred4)
+mkv4 <- merge(mkv4, tourney_teams %>% select(seed, pred4), by.x = "opp3", by.y = "seed")
+mkv4 <- rename(mkv4, prob4 = pred4)
+
+mkv4$pr1 <- mkv4$prob2 / (mkv4$prob1 + mkv4$prob2)
+mkv4$pr2 <- mkv4$pr1*(((mkv4$prob4/(mkv4$prob3 + mkv4$prob4))*(mkv4$prob3/(mkv4$prob1 + mkv4$prob3)))+((mkv4$prob3/(mkv4$prob3 + mkv4$prob4))*(mkv4$prob4/(mkv4$prob1 + mkv4$prob4))))
+mkv4 <- mkv4 %>%
+  select(team,teamseed,pr1,pr2)
+year <- paste("tarv",as.character(i), sep = "")
+assign(year,mkv4)
+
+test <- merge(tourney, mkv4 %>% select(teamseed,pr1), by.x = "WTeamSeed", by.y = "teamseed")
+test <- rename(test, pr1.x = pr1)
+test <- merge(test, mkv4 %>% select(teamseed,pr1), by.x = "LTeamSeed", by.y = "teamseed")
+test <- rename(test, pr1.y = pr1)
+test <- test %>%
+  arrange(date.x)
+test <- test[1:32,]
+test$predwinner <- ifelse(test$pr1.x > test$pr1.y, test$winner,test$loser)
+test$test <- ifelse(test$predwinner == test$winner, 1, 0)
+testtarv <- sum(test$test)/32
+year <- paste("tarv",as.character(i),"r1", sep = "")
+assign(year,testtarv)
+test$test2 <- ifelse(test$test == 0, test$winner, NA)
+remove <- test$test2
+remove <-remove[!is.na(remove)]
+mkvremove <- mkv4[ !mkv4$team %in% remove, ]
+
+
+test <- merge(tourney, mkvremove %>% select(teamseed,pr2), by.x = "WTeamSeed", by.y = "teamseed",all.x =TRUE)
+test <- rename(test, pr2.x = pr2)
+test <- merge(test, mkvremove %>% select(teamseed,pr2), by.x = "LTeamSeed", by.y = "teamseed",all.x =TRUE)
+test <- rename(test, pr2.y = pr2)
+test <- test %>%
+  arrange(date.x)
+test <- test[33:48,]
+test$pr2.xind <- ifelse(is.na(test$pr2.x),1,0)
+test$pr2.yind <- ifelse(is.na(test$pr2.y),1,0)
+test <- subset(test, select=-c(pr2.x,pr2.y))
+test <- merge(test, mkv4 %>% select(teamseed,pr2), by.x = "WTeamSeed", by.y = "teamseed")
+test <- rename(test, pr2.x = pr2)
+test <- merge(test, mkv4 %>% select(teamseed,pr2), by.x = "LTeamSeed", by.y = "teamseed")
+test <- rename(test, pr2.y = pr2)
+test <- test %>%
+  arrange(date.x)
+test$predwinner <- ifelse(test$pr2.x > test$pr2.y, test$winner,test$loser)
+test$test <- ifelse((test$predwinner == test$winner & (test$pr2.x > test$pr2.y) & (test$pr2.xind != 1)) | (test$predwinner == test$winner & (test$pr2.y > test$pr2.x) & (test$pr2.yind != 1)), 1, 0)
+testtarv2 <- sum(test$test)/16
+year <- paste("tarv",as.character(i),"r2", sep = "")
+assign(year,testtarv2)
+
+
+
+if (testts >= testseed){
 r1w<-append(r1w,1)
 } else{
 r1w<-append(r1w,0)  
 }
-if (testblend2 >= testseed2){
+if (testts2 >= testseed2){
 r2w<-append(r2w,1)
 }  else {
 r2w<-append(r2w,0)  
 } 
-if (((testblend*32)+(testblend2*16)) >= ((testseed*32)+(testseed2*16))){
+if (((testts*32)+(testts2*16)) >= ((testseed*32)+(testseed2*16))){
   rall<-append(rall,1)
 }  else {
   rall<-append(rall,0)  
@@ -338,3 +411,4 @@ compare_results <- data.frame(yearw)
 compare_results$r1w <- r1w
 compare_results$r2w <- r2w
 compare_results$rall <- rall
+
