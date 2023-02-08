@@ -137,9 +137,7 @@ pred <- append(pred,predict_MA$mean[1])
 }
 tourney_teams$pred1 <- parse_number(tourney_teams$seed)
 tourney_teams$pred2 <- pred
-f <- min(tourney_teams$pred2)
-g <- 5-f
-tourney_teams$pred2 <- tourney_teams$pred2 + g
+tourney_teams$pred2 <- tourney_teams$pred2
 tourney_teams$pred3 <- ((17-tourney_teams$pred1)/17)*tourney_teams$pred2
 tourney_teams <- left_join(tourney_teams, tourney %>% select(team1,t1rk),by = c("team"="team1"))
 tourney_teams <- left_join(tourney_teams, tourney %>% select(team2,t2rk),by = c("team"="team2"))
