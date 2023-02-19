@@ -2,6 +2,10 @@ library(dplyr)
 library(tidyverse)
 library(data.table)
 library(forecast)
+library(kableExtra)
+library(reshape2)
+library(ggplot2)
+library(scales)
 
 rm(list=ls())
 
@@ -129,7 +133,7 @@ regular3$adj <- regular3$adjo - regular3$adjd
 
 myts <- ts(regular3$adj, frequency=1)
 MA <- auto.arima(myts,allowdrift = TRUE,allowmean = TRUE, seasonal = FALSE)
-MA2 <- ets(myts)
+MA2 <- ets(myts,model = "ZZN")
 
 # ts.plot(myts)
 # points(MA$fitted, type = "l", col = 2, lty = 2)
