@@ -31,11 +31,11 @@ myts <- ts(regular3$adj, frequency=1)
 MA <- auto.arima(myts,allowdrift = TRUE,allowmean = TRUE, seasonal = FALSE, trace = T)
 MA2 <- ets(myts, model = "ZZN")
 
-ts.plot(myts)
+ts.plot(myts, ylab = "Penn State Efficiency")
 myts %>% diff() %>% ggtsdisplay(main="")
-ts.plot(myts)
+ts.plot(myts, ylab = "Penn State Efficiency")
 points(MA$fitted, type = "l", col = 2, lty = 2)
-ts.plot(myts)
+ts.plot(myts, ylab = "Penn State Efficiency")
 points(MA2$fitted, type = "l", col = 2, lty = 2)
 summary(MA2)
 
@@ -46,6 +46,7 @@ summary(MA2)
 
 probmethodtable <- as.data.frame(cbind(seed2011$team,seed2011$teamseed,round(seed2011$pr1,2),round(seed2011$pr2,2),round(ts2017$pr1,2),round(ts2017$pr2,2),
                                        round(ets2017$pr1,2),round(ets2017$pr2,2)))
+
 probmethodtable <- probmethodtable %>% 
   arrange(V2)
 probmethodtable <- probmethodtable[1:16,]
@@ -63,24 +64,25 @@ seed <- rbind(seed2011,seed2012,seed2013,seed2014,seed2015,seed2016,seed2017,see
 seed$teamseed <- parse_number(seed$teamseed)
 seed <- seed %>%
   group_by(teamseed)%>%
-  summarise('Seed Method R2' = mean(pr1))
+  summarise('Seed Method R1' = mean(pr1))
 ts <- rbind(ts2011,ts2012,ts2013,ts2014,ts2015,ts2016,ts2017,ts2018,ts2019)
 ts$teamseed <- parse_number(ts$teamseed)
 ts <- ts %>%
   group_by(teamseed)%>%
-  summarise('ARIMA Method R2' = mean(pr1))
+  summarise('ARIMA Method R1' = mean(pr1))
 ets <- rbind(ets2011,ets2012,ets2013,ets2014,ets2015,ets2016,ets2017,ets2018,ets2019)
 ets$teamseed <- parse_number(ets$teamseed)
 ets <- ets %>%
   group_by(teamseed)%>%
-  summarise('ETS Method R2' = mean(pr1))
+  summarise('ETS Method R1' = mean(pr1))
 seed <- left_join(seed,ts)
 seed <- left_join(seed,ets)
 seed$teamseed <- as.character(seed$teamseed)
-chisquare <- seed
+historic <- c(0.99,	0.94,	0.85,	0.78,	0.65,	0.63,	0.60,	0.49,	0.51,	0.40,	0.38,	0.35,	0.22,	0.15,	0.06,	0.01)
+seed$'Historic Prob.' <- historic
 seed <- melt(seed,id = "teamseed")
 seed$teamseed <- as.numeric(seed$teamseed)
-ggplot(seed, aes(x=teamseed, y=value, group=variable)) +
+ggplot(seed, aes(x=teamseed, y=value, color=variable)) +
   geom_line(aes(linetype=variable))+
   theme_bw() + 
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
@@ -126,7 +128,7 @@ mean((parse_number(pctresults$`Seed Method R3 % Correct`)/100)*16)
 mean((parse_number(pctresults$`ARIMA Method R3 % Correct`)/100)*16)
 mean((parse_number(pctresults$`ETS Method R3 % Correct`)/100)*16)
 
-chisquareobsevered <-{}
+
 k <- 2011
 y <- list()
 x <- list()
@@ -285,9 +287,7 @@ for (i in o) {
   
   etsupsetcorrectr2 <-append(etsupsetcorrectr2,sumupsetcorrect)
   
-  #Storing For Chi-Square Analysis
-  i$predupset <- parse_number(i$WTeamSeed)
-  chisquareobsevered <-append(chisquareobsevered,i$predupset)
+
 }
 
 tsupsetcorrect <- tsupsetcorrectr1 + tsupsetcorrectr2
@@ -412,4 +412,128 @@ sd(tsupsetcorrect/tspredupset)
 sd(etsupsetcorrect/etspredupset)
 mean(tspredupset)
 mean(etspredupset)
+
+
+k <- 2011
+y <- list()
+x <- list()
+z <- list()
+n <- list()
+o <- list()
+p <- list()
+while (k <= 2019){
+  sname <- paste("predicttsr1",as.character(k), sep = "")
+  dname <- get(paste("predicttsr1",as.character(k), sep = ""))
+  x[[sname]] <- dname
+  sname <- paste("predictetsr1",as.character(k), sep = "")
+  dname <- get(paste("predictetsr1",as.character(k), sep = ""))
+  y[[sname]] <- dname
+  sname <- paste("predictseedr1",as.character(k), sep = "")
+  dname <- get(paste("predictseedr1",as.character(k), sep = ""))
+  z[[sname]] <- dname
+  k <- k+1
+}
+k <- 2011
+while (k <= 2019){
+  sname <- paste("predicttsr2",as.character(k), sep = "")
+  dname <- get(paste("predicttsr2",as.character(k), sep = ""))
+  n[[sname]] <- dname
+  sname <- paste("predictetsr2",as.character(k), sep = "")
+  dname <- get(paste("predictetsr2",as.character(k), sep = ""))
+  o[[sname]] <- dname
+  sname <- paste("predictseedr2",as.character(k), sep = "")
+  dname <- get(paste("predictseedr2",as.character(k), sep = ""))
+  p[[sname]] <- dname
+  k <- k+1
+}
+
+
+
+tsupsetcorrectr1 <- {}
+etsupsetcorrectr1 <- {}
+seedupsetcorrectr1 <- {}
+tsupsetcorrectr2 <- {}
+etsupsetcorrectr2 <- {}
+seedupsetcorrectr2 <- {}
+for (i in x) {
+  i$diff <- abs(parse_number(i$WTeamSeed)-parse_number(i$LTeamSeed))
+  i$correct<- ifelse( (i$test == 1)&(i$diff <= 7) ,1,0)
+  
+  
+  sumupsetcorrect <- sum(i$correct)
+  
+  
+  tsupsetcorrectr1 <-append(tsupsetcorrectr1,sumupsetcorrect)
+  
+}
+for (i in y) {
+  i$diff <- abs(parse_number(i$WTeamSeed)-parse_number(i$LTeamSeed))
+  i$correct<- ifelse( (i$test == 1)&(i$diff <= 7) ,1,0)
+  
+  
+  
+  sumupsetcorrect <- sum(i$correct)
+  
+  etsupsetcorrectr1 <-append(etsupsetcorrectr1,sumupsetcorrect)
+}
+for (i in z) {
+  i$diff <- abs(parse_number(i$WTeamSeed)-parse_number(i$LTeamSeed))
+  i$correct<- ifelse( (i$test == 1)&(i$diff <= 7) ,1,0)
+  
+  
+  
+  sumupsetcorrect <- sum(i$correct)
+  
+  seedupsetcorrectr1 <-append(seedupsetcorrectr1,sumupsetcorrect)
+}
+for (i in n) {
+  i$diff <- abs(parse_number(i$WTeamSeed)-parse_number(i$LTeamSeed))
+  i$correct<- ifelse( (i$test == 1)&(i$diff <= 7) ,1,0)
+  
+  
+  sumupsetcorrect <- sum(i$correct)
+  
+  tsupsetcorrectr2 <-append(tsupsetcorrectr2,sumupsetcorrect)
+}
+for (i in o) {
+  i$diff <- abs(parse_number(i$WTeamSeed)-parse_number(i$LTeamSeed))
+  i$correct<- ifelse( (i$test == 1)&(i$diff <= 7) ,1,0)
+  
+  
+  sumupsetcorrect <- sum(i$correct)
+  
+  etsupsetcorrectr2 <-append(etsupsetcorrectr2,sumupsetcorrect)
+  
+  
+}
+for (i in p) {
+  i$diff <- abs(parse_number(i$WTeamSeed)-parse_number(i$LTeamSeed))
+  i$correct<- ifelse( (i$test == 1)&(i$diff <= 7) ,1,0)
+  
+  
+  sumupsetcorrect <- sum(i$correct)
+  
+  seedupsetcorrectr2 <-append(seedupsetcorrectr2,sumupsetcorrect)
+  
+  
+}
+
+tsnewwintotal <- tsupsetcorrectr1 + tsupsetcorrectr2 
+etsnewwintotal <- etsupsetcorrectr1 + etsupsetcorrectr2 
+seednewwintotal <- seedupsetcorrectr1 + seedupsetcorrectr2 
+
+newwintotal <- as.data.frame(yearw)
+newwintotal <- rename(newwintotal,Year = yearw)
+newwintotal$'Seed Close Matchup Games Correct' <- seednewwintotal
+newwintotal$'ARIMA Close Matchup Games Correct' <- tsnewwintotal
+newwintotal$'ETS Close Matchup Games Correct' <- etsnewwintotal
+
+newwintotal %>%
+  kbl(caption = "Close Matchup Games Correct") %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  column_spec(1, border_right = TRUE)
+
+mean(newwintotal$'Seed Close Matchup Games Correct')
+mean(newwintotal$'ARIMA Close Matchup Games Correct')
+mean(newwintotal$'ETS Close Matchup Games Correct')
 
