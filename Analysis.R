@@ -29,7 +29,7 @@ regular3$adj <- regular3$adjo - regular3$adjd
 
 myts <- ts(regular3$adj, frequency=1)
 MA <- auto.arima(myts,allowdrift = TRUE,allowmean = TRUE, seasonal = FALSE, trace = T)
-MA2 <- ets(myts, model = "ZZN")
+MA2 <- ets(myts, model = "ZZN", allow.multiplicative.trend = TRUE)
 
 ts.plot(myts, ylab = "Penn State Efficiency")
 myts %>% diff() %>% ggtsdisplay(main="")
@@ -89,7 +89,7 @@ ggplot(seed, aes(x=teamseed, y=value, color=variable)) +
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),legend.position="top")+
   scale_x_continuous(breaks = round(seq(min(seed$teamseed), max(seed$teamseed), by = 1),1)) +
   scale_y_continuous(breaks = round(seq(min(seed$value), max(seed$value), by = 0.1),1)) + 
-  labs(x = "Seed",y="Proabability of Making R2",title="Comparing Methods Seed Dynamic")
+  labs(x = "Seed",y="Proabability of Winning R1",title="Comparing Methods Seed Dynamic")
 
 pctresults <- compare_results %>%
   select(-c(tsnum,seednum,etsnum))
@@ -120,13 +120,13 @@ sd(numresults$`Seed Method Games Correct`)
 sd(numresults$`ARIMA Method Games Correct`)
 sd(numresults$`ETS Method Games Correct`)
 
-mean((parse_number(pctresults$`Seed Method R2 % Correct`)/100)*32)
-mean((parse_number(pctresults$`ARIMA Method R2 % Correct`)/100)*32)
-mean((parse_number(pctresults$`ETS Method R2 % Correct`)/100)*32)
+mean((parse_number(pctresults$`Seed Method R1 % Correct`)/100)*32)
+mean((parse_number(pctresults$`ARIMA Method R1 % Correct`)/100)*32)
+mean((parse_number(pctresults$`ETS Method R1 % Correct`)/100)*32)
 
-mean((parse_number(pctresults$`Seed Method R3 % Correct`)/100)*16)
-mean((parse_number(pctresults$`ARIMA Method R3 % Correct`)/100)*16)
-mean((parse_number(pctresults$`ETS Method R3 % Correct`)/100)*16)
+mean((parse_number(pctresults$`Seed Method R2 % Correct`)/100)*16)
+mean((parse_number(pctresults$`ARIMA Method R2 % Correct`)/100)*16)
+mean((parse_number(pctresults$`ETS Method R2 % Correct`)/100)*16)
 
 
 k <- 2011

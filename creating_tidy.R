@@ -9,6 +9,9 @@ library(scales)
 
 rm(list=ls())
 
+#This file can be ran all the way through, it will produce many data sets,
+#the compare_results one gives overall games predicted for each method in each round
+
 #This will run and put together the advanced data file
 # #Pull in Advanced Data
 # year = 2011
@@ -110,7 +113,7 @@ tourney_teams <- unique(appended_list)
 
 pred <- {}
 pred2 <- {}
-
+pred3 <- {}
 for (z in tourney_teams$team) {
 regular1 <- tidy %>%
   group_by(team1,date.x) %>%
@@ -133,7 +136,7 @@ regular3$adj <- regular3$adjo - regular3$adjd
 
 myts <- ts(regular3$adj, frequency=1)
 MA <- auto.arima(myts,allowdrift = TRUE,allowmean = TRUE, seasonal = FALSE)
-MA2 <- ets(myts,model = "ZZN")
+MA2 <- ets(myts,model = "ZZN", allow.multiplicative.trend = TRUE)
 
 # ts.plot(myts)
 # points(MA$fitted, type = "l", col = 2, lty = 2)
@@ -150,6 +153,7 @@ tourney_teams$pred2 <- pred
 tourney_teams$pred2 <- tourney_teams$pred2 + (1-min(tourney_teams$pred2))
 tourney_teams$pred3 <- pred2
 tourney_teams$pred3 <- tourney_teams$pred3 + (1-min(tourney_teams$pred3))
+
 tourney_teams <- tourney_teams %>% distinct()
 
 
