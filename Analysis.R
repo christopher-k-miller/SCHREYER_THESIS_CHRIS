@@ -161,7 +161,7 @@ tsupsetcorrectr2 <- {}
 etsupsetcorrectr2 <- {}
 for (i in x) {
   i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed))&(i$pr1.x > i$pr1.y)|(parse_number(i$LTeamSeed)>parse_number(i$WTeamSeed))&(i$pr1.y > i$pr1.x) ,1 , 0)
+  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0) ,1 , 0)
   i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
   i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
   
@@ -174,7 +174,7 @@ for (i in x) {
 }
 for (i in y) {
   i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed))&(i$pr1.x > i$pr1.y)|(parse_number(i$LTeamSeed)>parse_number(i$WTeamSeed))&(i$pr1.y > i$pr1.x) ,1 , 0)
+  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0) ,1 , 0)
   i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
   i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
   
@@ -186,7 +186,7 @@ for (i in y) {
 }
 for (i in n) {
   i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed))&(i$pr2.x > i$pr2.y)& (test$pr2.xind != 1)|(parse_number(i$LTeamSeed)>parse_number(i$WTeamSeed))&(i$pr2.y > i$pr2.x)& (test$pr2.yind != 1) ,1 , 0)
+  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0)&(i$ind == i$LTeamSeed) ,1 , 0)
   i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
   i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
   
@@ -197,7 +197,7 @@ for (i in n) {
 }
 for (i in o) {
   i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed))&(i$pr2.x > i$pr2.y)& (test$pr2.xind != 1)|(parse_number(i$LTeamSeed)>parse_number(i$WTeamSeed))&(i$pr2.y > i$pr2.x)& (test$pr2.yind != 1) ,1 , 0)
+  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0)&(i$ind == i$LTeamSeed) ,1 , 0)
   i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
   i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
   
@@ -242,7 +242,7 @@ tsupsetcorrectr2 <- {}
 etsupsetcorrectr2 <- {}
 for (i in x) {
   i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed))&(i$pr1.x > i$pr1.y)|(parse_number(i$LTeamSeed)>parse_number(i$WTeamSeed))&(i$pr1.y > i$pr1.x) ,1 , 0)
+  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0) ,1 , 0)
   i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
   i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
   
@@ -255,7 +255,7 @@ for (i in x) {
 }
 for (i in y) {
   i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed))&(i$pr1.x > i$pr1.y)|(parse_number(i$LTeamSeed)>parse_number(i$WTeamSeed))&(i$pr1.y > i$pr1.x) ,1 , 0)
+  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0) ,1 , 0)
   i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
   i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
   
@@ -267,7 +267,7 @@ for (i in y) {
 }
 for (i in n) {
   i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed))&(i$pr2.x > i$pr2.y)& (test$pr2.xind != 1)|(parse_number(i$LTeamSeed)>parse_number(i$WTeamSeed))&(i$pr2.y > i$pr2.x)& (test$pr2.yind != 1) ,1 , 0)
+  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0)&(i$ind == i$LTeamSeed) ,1 , 0)
   i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
   i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
   
@@ -278,7 +278,7 @@ for (i in n) {
 }
 for (i in o) {
   i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed))&(i$pr2.x > i$pr2.y)& (test$pr2.xind != 1)|(parse_number(i$LTeamSeed)>parse_number(i$WTeamSeed))&(i$pr2.y > i$pr2.x)& (test$pr2.yind != 1) ,1 , 0)
+  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0)&(i$ind == i$LTeamSeed) ,1 , 0)
   i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
   i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
   
@@ -344,7 +344,7 @@ tsupsetcorrectr2 <- {}
 etsupsetcorrectr2 <- {}
 for (i in x) {
   i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed))&(i$pr1.x > i$pr1.y)|(parse_number(i$LTeamSeed)>parse_number(i$WTeamSeed))&(i$pr1.y > i$pr1.x) ,1 , 0)
+  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0) ,1 , 0)
   i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
   i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
   
@@ -357,7 +357,7 @@ for (i in x) {
 }
 for (i in y) {
   i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed))&(i$pr1.x > i$pr1.y)|(parse_number(i$LTeamSeed)>parse_number(i$WTeamSeed))&(i$pr1.y > i$pr1.x) ,1 , 0)
+  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0) ,1 , 0)
   i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
   i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
   
@@ -369,7 +369,7 @@ for (i in y) {
 }
 for (i in n) {
   i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed))&(i$pr2.x > i$pr2.y)& (test$pr2.xind != 1)|(parse_number(i$LTeamSeed)>parse_number(i$WTeamSeed))&(i$pr2.y > i$pr2.x)& (test$pr2.yind != 1) ,1 , 0)
+  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0)&(i$ind == i$LTeamSeed) ,1 , 0)
   i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
   i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
   
@@ -380,7 +380,7 @@ for (i in n) {
 }
 for (i in o) {
   i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed))&(i$pr2.x > i$pr2.y)& (test$pr2.xind != 1)|(parse_number(i$LTeamSeed)>parse_number(i$WTeamSeed))&(i$pr2.y > i$pr2.x)& (test$pr2.yind != 1) ,1 , 0)
+  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0)&(i$ind == i$LTeamSeed) ,1 , 0)
   i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
   i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
   

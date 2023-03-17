@@ -176,46 +176,51 @@ mkv <- mkv %>%
 year <- paste("seed",as.character(i), sep = "")
 assign(year,mkv)
 
+winseed <- merge(prob, mkv %>% select(teamseed, pr1) , by.x = "teamseed", by.y = "teamseed")
+winseed <- rename(winseed, t1 = pr1)
+winseed <- merge(winseed, mkv %>% select(teamseed, pr1) , by.x = "opp1", by.y = "teamseed")
+winseed <- rename(winseed, t2 = pr1)
+winseed$winr1 <- ifelse((winseed$t1 > winseed$t2),winseed$teamseed,ifelse((winseed$t2 > winseed$t1),winseed$opp1,0))
+winseed <- select(winseed, teamseed, opp1, opp2, opp3, winr1)
+winseed <- merge(winseed, mkv %>% select(teamseed, pr2) , by.x = "teamseed", by.y = "teamseed")
+winseed <- rename(winseed, t1 = pr2)
+winseed <- merge(winseed, mkv %>% select(teamseed, pr2) , by.x = "opp1", by.y = "teamseed")
+winseed <- rename(winseed, t2 = pr2)
+winseed <- merge(winseed, mkv %>% select(teamseed, pr2) , by.x = "opp2", by.y = "teamseed")
+winseed <- rename(winseed, t3 = pr2)
+winseed <- merge(winseed, mkv %>% select(teamseed, pr2) , by.x = "opp3", by.y = "teamseed")
+winseed <- rename(winseed, t4 = pr2)
+winseed$winr2 <- ifelse((winseed$t1 > winseed$t2)&(winseed$t1 > winseed$t3)&(winseed$t1 > winseed$t4),winseed$teamseed,ifelse((winseed$t2 > winseed$t1)&(winseed$t2 > winseed$t3)&(winseed$t2 > winseed$t4),winseed$opp1,ifelse((winseed$t3 > winseed$t1)&(winseed$t3 > winseed$t2)&(winseed$t3 > winseed$t4),winseed$opp2,ifelse((winseed$t4 > winseed$t1)&(winseed$t4 > winseed$t2)&(winseed$t4 > winseed$t3),winseed$opp3,0))))
+winseed <- select(winseed, winr1, winr2)
+uniqueseedr1 <- as.data.frame(unique(winseed$winr1))
+uniqueseedr1 <- rename(uniqueseedr1, winr1 = "unique(winseed$winr1)")
+uniqueseedr1$test <- 1
+uniqueseedr2 <- as.data.frame(unique(winseed$winr2))
+uniqueseedr2 <- rename(uniqueseedr2, winr2 = "unique(winseed$winr2)")
+uniqueseedr2$test <- 1
+uniqueseedr2$ind <- uniqueseedr2$winr2
 
-
-test <- merge(tourney, mkv %>% select(teamseed,pr1), by.x = "WTeamSeed", by.y = "teamseed")
-test <- rename(test, pr1.x = pr1)
-test <- merge(test, mkv %>% select(teamseed,pr1), by.x = "LTeamSeed", by.y = "teamseed")
-test <- rename(test, pr1.y = pr1)
-test <- test %>%
+test <- tourney %>%
   arrange(date.x)
 test <- test[1:32,]
-test$predwinner <- ifelse(test$pr1.x > test$pr1.y, test$winner,test$loser)
-test$test <- ifelse(test$predwinner == test$winner, 1, 0)
+test <- merge(test, uniqueseedr1, by.x = "WTeamSeed", by.y = "winr1", all.x = T)
+test$test <- ifelse(is.na(test$test),0,test$test)
 testseed <- sum(test$test)/32
+
 year <- paste("seed",as.character(i),"r1", sep = "")
 assign(year,testseed)
 year <- paste("predictseedr1",as.character(i), sep = "")
 assign(year,test)
-test$test2 <- ifelse(test$test == 0, test$winner, NA)
-remove <- test$test2
-remove <-remove[!is.na(remove)]
-mkvremove <- mkv[ !mkv$team %in% remove, ]
 
-test <- merge(tourney, mkvremove %>% select(teamseed,pr2), by.x = "WTeamSeed", by.y = "teamseed",all.x =TRUE)
-test <- rename(test, pr2.x = pr2)
-test <- merge(test, mkvremove %>% select(teamseed,pr2), by.x = "LTeamSeed", by.y = "teamseed",all.x =TRUE)
-test <- rename(test, pr2.y = pr2)
-test <- test %>%
+
+test <- tourney %>%
   arrange(date.x)
 test <- test[33:48,]
-test$pr2.xind <- ifelse(is.na(test$pr2.x),1,0)
-test$pr2.yind <- ifelse(is.na(test$pr2.y),1,0)
-test <- subset(test, select=-c(pr2.x,pr2.y))
-test <- merge(test, mkv %>% select(teamseed,pr2), by.x = "WTeamSeed", by.y = "teamseed")
-test <- rename(test, pr2.x = pr2)
-test <- merge(test, mkv %>% select(teamseed,pr2), by.x = "LTeamSeed", by.y = "teamseed")
-test <- rename(test, pr2.y = pr2)
-test <- test %>%
-  arrange(date.x)
-test$predwinner <- ifelse(test$pr2.x > test$pr2.y, test$winner,test$loser)
-test$test <- ifelse((test$predwinner == test$winner & (test$pr2.x > test$pr2.y) & (test$pr2.xind != 1)) | (test$predwinner == test$winner & (test$pr2.y > test$pr2.x) & (test$pr2.yind != 1)), 1, 0)
+test <- merge(test, uniqueseedr2, by.x = "WTeamSeed", by.y = "winr2", all.x = T)
+test$ind <- ifelse(is.na(test$ind),0,test$ind)
+test$test <- ifelse(is.na(test$test),0,test$test)
 testseed2 <- sum(test$test)/16
+
 year <- paste("seed",as.character(i),"r2", sep = "")
 assign(year,testseed2)
 year <- paste("predictseedr2",as.character(i), sep = "")
@@ -239,44 +244,49 @@ year <- paste("ts",as.character(i), sep = "")
 assign(year,mkv2)
 
 
-test <- merge(tourney, mkv2 %>% select(teamseed,pr1), by.x = "WTeamSeed", by.y = "teamseed")
-test <- rename(test, pr1.x = pr1)
-test <- merge(test, mkv2 %>% select(teamseed,pr1), by.x = "LTeamSeed", by.y = "teamseed")
-test <- rename(test, pr1.y = pr1)
-test <- test %>%
+wints <- merge(prob, mkv2 %>% select(teamseed, pr1) , by.x = "teamseed", by.y = "teamseed")
+wints <- rename(wints, t1 = pr1)
+wints <- merge(wints, mkv2 %>% select(teamseed, pr1) , by.x = "opp1", by.y = "teamseed")
+wints <- rename(wints, t2 = pr1)
+wints$winr1 <- ifelse((wints$t1 > wints$t2),wints$teamseed,ifelse((wints$t2 > wints$t1),wints$opp1,0))
+wints <- select(wints, teamseed, opp1, opp2, opp3, winr1)
+wints <- merge(wints, mkv2 %>% select(teamseed, pr2) , by.x = "teamseed", by.y = "teamseed")
+wints <- rename(wints, t1 = pr2)
+wints <- merge(wints, mkv2 %>% select(teamseed, pr2) , by.x = "opp1", by.y = "teamseed")
+wints <- rename(wints, t2 = pr2)
+wints <- merge(wints, mkv2 %>% select(teamseed, pr2) , by.x = "opp2", by.y = "teamseed")
+wints <- rename(wints, t3 = pr2)
+wints <- merge(wints, mkv2 %>% select(teamseed, pr2) , by.x = "opp3", by.y = "teamseed")
+wints <- rename(wints, t4 = pr2)
+wints$winr2 <- ifelse((wints$t1 > wints$t2)&(wints$t1 > wints$t3)&(wints$t1 > wints$t4),wints$teamseed,ifelse((wints$t2 > wints$t1)&(wints$t2 > wints$t3)&(wints$t2 > wints$t4),wints$opp1,ifelse((wints$t3 > wints$t1)&(wints$t3 > wints$t2)&(wints$t3 > wints$t4),wints$opp2,ifelse((wints$t4 > wints$t1)&(wints$t4 > wints$t2)&(wints$t4 > wints$t3),wints$opp3,0))))
+wints <- select(wints, winr1, winr2)
+uniquetsr1 <- as.data.frame(unique(wints$winr1))
+uniquetsr1 <- rename(uniquetsr1, winr1 = "unique(wints$winr1)")
+uniquetsr1$test <- 1
+uniquetsr2 <- as.data.frame(unique(wints$winr2))
+uniquetsr2 <- rename(uniquetsr2, winr2 = "unique(wints$winr2)")
+uniquetsr2$test <- 1
+uniquetsr2$ind <- uniquetsr2$winr2
+
+test <- tourney %>%
   arrange(date.x)
 test <- test[1:32,]
-test$predwinner <- ifelse(test$pr1.x > test$pr1.y, test$winner,test$loser)
-test$test <- ifelse(test$predwinner == test$winner, 1, 0)
+test <- merge(test, uniquetsr1, by.x = "WTeamSeed", by.y = "winr1", all.x = T)
+test$test <- ifelse(is.na(test$test),0,test$test)
 testts <- sum(test$test)/32
 year <- paste("ts",as.character(i),"r1", sep = "")
 assign(year,testts)
 year <- paste("predicttsr1",as.character(i), sep = "")
 assign(year,test)
-test$test2 <- ifelse(test$test == 0, test$winner, NA)
-remove <- test$test2
-remove <-remove[!is.na(remove)]
-mkvremove <- mkv2[ !mkv2$team %in% remove, ]
 
 
-test <- merge(tourney, mkvremove %>% select(teamseed,pr2), by.x = "WTeamSeed", by.y = "teamseed",all.x =TRUE)
-test <- rename(test, pr2.x = pr2)
-test <- merge(test, mkvremove %>% select(teamseed,pr2), by.x = "LTeamSeed", by.y = "teamseed",all.x =TRUE)
-test <- rename(test, pr2.y = pr2)
-test <- test %>%
+
+test <- tourney %>%
   arrange(date.x)
 test <- test[33:48,]
-test$pr2.xind <- ifelse(is.na(test$pr2.x),1,0)
-test$pr2.yind <- ifelse(is.na(test$pr2.y),1,0)
-test <- subset(test, select=-c(pr2.x,pr2.y))
-test <- merge(test, mkv2 %>% select(teamseed,pr2), by.x = "WTeamSeed", by.y = "teamseed")
-test <- rename(test, pr2.x = pr2)
-test <- merge(test, mkv2 %>% select(teamseed,pr2), by.x = "LTeamSeed", by.y = "teamseed")
-test <- rename(test, pr2.y = pr2)
-test <- test %>%
-  arrange(date.x)
-test$predwinner <- ifelse(test$pr2.x > test$pr2.y, test$winner,test$loser)
-test$test <- ifelse((test$predwinner == test$winner & (test$pr2.x > test$pr2.y) & (test$pr2.xind != 1)) | (test$predwinner == test$winner & (test$pr2.y > test$pr2.x) & (test$pr2.yind != 1)), 1, 0)
+test <- merge(test, uniquetsr2, by.x = "WTeamSeed", by.y = "winr2", all.x = T)
+test$test <- ifelse(is.na(test$test),0,test$test)
+test$ind <- ifelse(is.na(test$ind),0,test$ind)
 testts2 <- sum(test$test)/16
 year <- paste("ts",as.character(i),"r2", sep = "")
 assign(year,testts2)
@@ -300,44 +310,47 @@ mkv3 <- mkv3 %>%
 year <- paste("ets",as.character(i), sep = "")
 assign(year,mkv3)
 
-test <- merge(tourney, mkv3 %>% select(teamseed,pr1), by.x = "WTeamSeed", by.y = "teamseed")
-test <- rename(test, pr1.x = pr1)
-test <- merge(test, mkv3 %>% select(teamseed,pr1), by.x = "LTeamSeed", by.y = "teamseed")
-test <- rename(test, pr1.y = pr1)
-test <- test %>%
+winets <- merge(prob, mkv3 %>% select(teamseed, pr1) , by.x = "teamseed", by.y = "teamseed")
+winets <- rename(winets, t1 = pr1)
+winets <- merge(winets, mkv3 %>% select(teamseed, pr1) , by.x = "opp1", by.y = "teamseed")
+winets <- rename(winets, t2 = pr1)
+winets$winr1 <- ifelse((winets$t1 > winets$t2),winets$teamseed,ifelse((winets$t2 > winets$t1),winets$opp1,0))
+winets <- select(winets, teamseed, opp1, opp2, opp3, winr1)
+winets <- merge(winets, mkv3 %>% select(teamseed, pr2) , by.x = "teamseed", by.y = "teamseed")
+winets <- rename(winets, t1 = pr2)
+winets <- merge(winets, mkv3 %>% select(teamseed, pr2) , by.x = "opp1", by.y = "teamseed")
+winets <- rename(winets, t2 = pr2)
+winets <- merge(winets, mkv3 %>% select(teamseed, pr2) , by.x = "opp2", by.y = "teamseed")
+winets <- rename(winets, t3 = pr2)
+winets <- merge(winets, mkv3 %>% select(teamseed, pr2) , by.x = "opp3", by.y = "teamseed")
+winets <- rename(winets, t4 = pr2)
+winets$winr2 <- ifelse((winets$t1 > winets$t2)&(winets$t1 > winets$t3)&(winets$t1 > winets$t4),winets$teamseed,ifelse((winets$t2 > winets$t1)&(winets$t2 > winets$t3)&(winets$t2 > winets$t4),winets$opp1,ifelse((winets$t3 > winets$t1)&(winets$t3 > winets$t2)&(winets$t3 > winets$t4),winets$opp2,ifelse((winets$t4 > winets$t1)&(winets$t4 > winets$t2)&(winets$t4 > winets$t3),winets$opp3,0))))
+winets <- select(winets, winr1, winr2)
+uniqueetsr1 <- as.data.frame(unique(winets$winr1))
+uniqueetsr1 <- rename(uniqueetsr1, winr1 = "unique(winets$winr1)")
+uniqueetsr1$test <- 1
+uniqueetsr2 <- as.data.frame(unique(winets$winr2))
+uniqueetsr2 <- rename(uniqueetsr2, winr2 = "unique(winets$winr2)")
+uniqueetsr2$test <- 1
+uniqueetsr2$ind <- uniqueetsr2$winr2
+
+test <- tourney %>%
   arrange(date.x)
 test <- test[1:32,]
-test$predwinner <- ifelse(test$pr1.x > test$pr1.y, test$winner,test$loser)
-test$test <- ifelse(test$predwinner == test$winner, 1, 0)
+test <- merge(test, uniqueetsr1, by.x = "WTeamSeed", by.y = "winr1", all.x = T)
+test$test <- ifelse(is.na(test$test),0,test$test)
 testets <- sum(test$test)/32
 year <- paste("ets",as.character(i),"r1", sep = "")
 assign(year,testets)
 year <- paste("predictetsr1",as.character(i), sep = "")
 assign(year,test)
-test$test2 <- ifelse(test$test == 0, test$winner, NA)
-remove <- test$test2
-remove <-remove[!is.na(remove)]
-mkvremove <- mkv3[ !mkv3$team %in% remove, ]
 
-
-test <- merge(tourney, mkvremove %>% select(teamseed,pr2), by.x = "WTeamSeed", by.y = "teamseed",all.x =TRUE)
-test <- rename(test, pr2.x = pr2)
-test <- merge(test, mkvremove %>% select(teamseed,pr2), by.x = "LTeamSeed", by.y = "teamseed",all.x =TRUE)
-test <- rename(test, pr2.y = pr2)
-test <- test %>%
+test <- tourney %>%
   arrange(date.x)
 test <- test[33:48,]
-test$pr2.xind <- ifelse(is.na(test$pr2.x),1,0)
-test$pr2.yind <- ifelse(is.na(test$pr2.y),1,0)
-test <- subset(test, select=-c(pr2.x,pr2.y))
-test <- merge(test, mkv3 %>% select(teamseed,pr2), by.x = "WTeamSeed", by.y = "teamseed")
-test <- rename(test, pr2.x = pr2)
-test <- merge(test, mkv3 %>% select(teamseed,pr2), by.x = "LTeamSeed", by.y = "teamseed")
-test <- rename(test, pr2.y = pr2)
-test <- test %>%
-  arrange(date.x)
-test$predwinner <- ifelse(test$pr2.x > test$pr2.y, test$winner,test$loser)
-test$test <- ifelse((test$predwinner == test$winner & (test$pr2.x > test$pr2.y) & (test$pr2.xind != 1)) | (test$predwinner == test$winner & (test$pr2.y > test$pr2.x) & (test$pr2.yind != 1)), 1, 0)
+test <- merge(test, uniqueetsr2, by.x = "WTeamSeed", by.y = "winr2", all.x = T)
+test$test <- ifelse(is.na(test$test),0,test$test)
+test$ind <- ifelse(is.na(test$ind),0,test$ind)
 testets2 <- sum(test$test)/16
 year <- paste("ets",as.character(i),"r2", sep = "")
 assign(year,testets2)
