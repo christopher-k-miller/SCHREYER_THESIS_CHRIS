@@ -159,142 +159,60 @@ tsupsetcorrectr1 <- {}
 etsupsetcorrectr1 <- {}
 tsupsetcorrectr2 <- {}
 etsupsetcorrectr2 <- {}
+tsupsetr1 <- {}
+etsupsetr1 <- {}
+tsupsetr2 <- {}
+etsupsetr2 <- {}
 for (i in x) {
   i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0) ,1 , 0)
-  i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
-  i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
-  
-  
-  sumupsetcorrect <- sum(i$upsetincorrect)+sum(i$upsetcorrect)
-  
-  
-  tsupsetcorrectr1 <-append(tsupsetcorrectr1,sumupsetcorrect)
+  i$upsetcorrect<- ifelse( i$upset == 1 & i$test == 1 ,1,0)
 
-}
-for (i in y) {
-  i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0) ,1 , 0)
-  i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
-  i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
-  
-  
-  
-  sumupsetcorrect <- sum(i$upsetincorrect)+sum(i$upsetcorrect)
-  
-  etsupsetcorrectr1 <-append(etsupsetcorrectr1,sumupsetcorrect)
-}
-for (i in n) {
-  i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0)&(i$ind == i$LTeamSeed) ,1 , 0)
-  i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
-  i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
-  
-  
-  sumupsetcorrect <- sum(i$upsetincorrect)+sum(i$upsetcorrect)
-  
-  tsupsetcorrectr2 <-append(tsupsetcorrectr2,sumupsetcorrect)
-}
-for (i in o) {
-  i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0)&(i$ind == i$LTeamSeed) ,1 , 0)
-  i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
-  i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
-  
-  
-  sumupsetcorrect <- sum(i$upsetincorrect)+sum(i$upsetcorrect)
-  
-  etsupsetcorrectr2 <-append(etsupsetcorrectr2,sumupsetcorrect)
-}
-
-tsupset <- tsupsetcorrectr1 + tsupsetcorrectr2
-etsupset <- etsupsetcorrectr1 + etsupsetcorrectr2
-
-k <- 2011
-y <- list()
-x <- list()
-n <- list()
-o <- list()
-while (k <= 2019){
-  sname <- paste("predicttsr1",as.character(k), sep = "")
-  dname <- get(paste("predicttsr1",as.character(k), sep = ""))
-  x[[sname]] <- dname
-  sname <- paste("predictetsr1",as.character(k), sep = "")
-  dname <- get(paste("predictetsr1",as.character(k), sep = ""))
-  y[[sname]] <- dname
-  k <- k+1
-}
-k <- 2011
-while (k <= 2019){
-  sname <- paste("predicttsr2",as.character(k), sep = "")
-  dname <- get(paste("predicttsr2",as.character(k), sep = ""))
-  n[[sname]] <- dname
-  sname <- paste("predictetsr2",as.character(k), sep = "")
-  dname <- get(paste("predictetsr2",as.character(k), sep = ""))
-  o[[sname]] <- dname
-  k <- k+1
-}
-
-
-tsupsetcorrectr1 <- {}
-etsupsetcorrectr1 <- {}
-tsupsetcorrectr2 <- {}
-etsupsetcorrectr2 <- {}
-for (i in x) {
-  i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0) ,1 , 0)
-  i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
-  i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
-  
   
   sumupsetcorrect <- sum(i$upsetcorrect)
-  
+  sumupset <- sum(i$upset)
   
   tsupsetcorrectr1 <-append(tsupsetcorrectr1,sumupsetcorrect)
+  tsupsetr1 <-append(tsupsetr1,sumupset)
   
 }
 for (i in y) {
   i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0) ,1 , 0)
-  i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
-  i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
-  
+  i$upsetcorrect<- ifelse( i$upset == 1 & i$test == 1 ,1,0)
+
   
   
   sumupsetcorrect <- sum(i$upsetcorrect)
+  sumupset <- sum(i$upset)
   
   etsupsetcorrectr1 <-append(etsupsetcorrectr1,sumupsetcorrect)
+  etsupsetr1 <-append(etsupsetr1,sumupset)
 }
 for (i in n) {
-  i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0)&(i$ind == i$LTeamSeed) ,1 , 0)
-  i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
-  i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
-  
+  i$upset <- ifelse(parse_number(i$WTeamSeed)>=5,1,0)
+  i$upsetcorrect<- ifelse( i$upset == 1 & i$test == 1 ,1,0)
   
   sumupsetcorrect <- sum(i$upsetcorrect)
+  sumupset <- sum(i$upset)
   
   tsupsetcorrectr2 <-append(tsupsetcorrectr2,sumupsetcorrect)
+  tsupsetr2 <-append(tsupsetr2,sumupset)
 }
 for (i in o) {
-  i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0)&(i$ind == i$LTeamSeed) ,1 , 0)
-  i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
-  i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
-  
+  i$upset <- ifelse(parse_number(i$WTeamSeed)>=5,1,0)
+  i$upsetcorrect<- ifelse( i$upset == 1 & i$test == 1 ,1,0)
   
   sumupsetcorrect <- sum(i$upsetcorrect)
+  sumupset <- sum(i$upset)
   
   etsupsetcorrectr2 <-append(etsupsetcorrectr2,sumupsetcorrect)
-  
-
+  etsupsetr2 <-append(etsupsetr2,sumupset)
 }
 
 tsupsetcorrect <- tsupsetcorrectr1 + tsupsetcorrectr2
 etsupsetcorrect <- etsupsetcorrectr1 + etsupsetcorrectr2
 
-
-
+tsupset <- tsupsetr1 + tsupsetr2
+etsupset <- etsupsetr1 + etsupsetr2
 
 
 upsetpct <- as.data.frame(yearw)
@@ -342,58 +260,65 @@ tsupsetcorrectr1 <- {}
 etsupsetcorrectr1 <- {}
 tsupsetcorrectr2 <- {}
 etsupsetcorrectr2 <- {}
+tsupsetr1 <- {}
+etsupsetr1 <- {}
+tsupsetr2 <- {}
+etsupsetr2 <- {}
 for (i in x) {
   i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0) ,1 , 0)
-  i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
-  i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
+  i$upsetcorrect<- ifelse( i$upset == 1 & i$test == 1 ,1,0)
+  i$predupset <- ifelse( (i$upset == 1 & i$test == 1)|(i$upset == 0 & i$test == 0) ,1,0)
   
   
-  sumupsetcorrect <- sum(i$predupset)
-  
+  sumupsetcorrect <- sum(i$upsetcorrect)
+  sumupset <- sum(i$predupset)
   
   tsupsetcorrectr1 <-append(tsupsetcorrectr1,sumupsetcorrect)
+  tsupsetr1 <-append(tsupsetr1,sumupset)
   
 }
 for (i in y) {
   i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0) ,1 , 0)
-  i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
-  i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
+  i$upsetcorrect<- ifelse( i$upset == 1 & i$test == 1 ,1,0)
+  i$predupset <- ifelse( (i$upset == 1 & i$test == 1)|(i$upset == 0 & i$test == 0) ,1,0)
   
   
-  
-  sumupsetcorrect <- sum(i$predupset)
+  sumupsetcorrect <- sum(i$upsetcorrect)
+  sumupset <- sum(i$predupset)
   
   etsupsetcorrectr1 <-append(etsupsetcorrectr1,sumupsetcorrect)
+  etsupsetr1 <-append(etsupsetr1,sumupset)
 }
+f <- 2011
 for (i in n) {
-  i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0)&(i$ind == i$LTeamSeed) ,1 , 0)
-  i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
-  i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
+  i$upset <- ifelse(parse_number(i$WTeamSeed)>=5,1,0)
+  i$upsetcorrect<- ifelse( i$upset == 1 & i$test == 1 ,1,0)
   
-  
-  sumupsetcorrect <- sum(i$predupset)
+  sumupsetcorrect <- sum(i$upsetcorrect)
+  sumupset <- get(paste("upsetts",as.character(f),sep=""))
   
   tsupsetcorrectr2 <-append(tsupsetcorrectr2,sumupsetcorrect)
+  tsupsetr2 <-append(tsupsetr2,sumupset)
+  f <- f+1
 }
+f <- 2011
 for (i in o) {
-  i$upset <- ifelse(parse_number(i$WTeamSeed)>parse_number(i$LTeamSeed),1,0)
-  i$predupset <- ifelse((i$upset == 1)&(i$test == 1)|(i$upset == 0)&(i$test == 0)&(i$ind == i$LTeamSeed) ,1 , 0)
-  i$upsetcorrect<- ifelse( i$upset == 1 & i$predupset == 1 ,1,0)
-  i$upsetincorrect <- ifelse( i$upset == 1 & i$predupset == 0,1,0)
+  i$upset <- ifelse(parse_number(i$WTeamSeed)>=5,1,0)
+  i$upsetcorrect<- ifelse( i$upset == 1 & i$test == 1 ,1,0)
   
-  
-  sumupsetcorrect <- sum(i$predupset)
+  sumupsetcorrect <- sum(i$upsetcorrect)
+  sumupset <- get(paste("upsetets",as.character(f),sep=""))
   
   etsupsetcorrectr2 <-append(etsupsetcorrectr2,sumupsetcorrect)
-  
-
+  etsupsetr2 <-append(etsupsetr2,sumupset)
+  f <- f+1
 }
 
-tspredupset <- tsupsetcorrectr1 + tsupsetcorrectr2
-etspredupset <- etsupsetcorrectr1 + etsupsetcorrectr2
+tsupsetcorrect <- tsupsetcorrectr1 + tsupsetcorrectr2
+etsupsetcorrect <- etsupsetcorrectr1 + etsupsetcorrectr2
+
+tspredupset <- tsupsetr1 + tsupsetr2
+etspredupset <- etsupsetr1 + etsupsetr2
 
 
 upsetpct2 <- as.data.frame(yearw)
@@ -418,9 +343,7 @@ k <- 2011
 y <- list()
 x <- list()
 z <- list()
-n <- list()
-o <- list()
-p <- list()
+
 while (k <= 2019){
   sname <- paste("predicttsr1",as.character(k), sep = "")
   dname <- get(paste("predicttsr1",as.character(k), sep = ""))
@@ -433,19 +356,7 @@ while (k <= 2019){
   z[[sname]] <- dname
   k <- k+1
 }
-k <- 2011
-while (k <= 2019){
-  sname <- paste("predicttsr2",as.character(k), sep = "")
-  dname <- get(paste("predicttsr2",as.character(k), sep = ""))
-  n[[sname]] <- dname
-  sname <- paste("predictetsr2",as.character(k), sep = "")
-  dname <- get(paste("predictetsr2",as.character(k), sep = ""))
-  o[[sname]] <- dname
-  sname <- paste("predictseedr2",as.character(k), sep = "")
-  dname <- get(paste("predictseedr2",as.character(k), sep = ""))
-  p[[sname]] <- dname
-  k <- k+1
-}
+
 
 
 
@@ -486,41 +397,11 @@ for (i in z) {
   
   seedupsetcorrectr1 <-append(seedupsetcorrectr1,sumupsetcorrect)
 }
-for (i in n) {
-  i$diff <- abs(parse_number(i$WTeamSeed)-parse_number(i$LTeamSeed))
-  i$correct<- ifelse( (i$test == 1)&(i$diff <= 7) ,1,0)
-  
-  
-  sumupsetcorrect <- sum(i$correct)
-  
-  tsupsetcorrectr2 <-append(tsupsetcorrectr2,sumupsetcorrect)
-}
-for (i in o) {
-  i$diff <- abs(parse_number(i$WTeamSeed)-parse_number(i$LTeamSeed))
-  i$correct<- ifelse( (i$test == 1)&(i$diff <= 7) ,1,0)
-  
-  
-  sumupsetcorrect <- sum(i$correct)
-  
-  etsupsetcorrectr2 <-append(etsupsetcorrectr2,sumupsetcorrect)
-  
-  
-}
-for (i in p) {
-  i$diff <- abs(parse_number(i$WTeamSeed)-parse_number(i$LTeamSeed))
-  i$correct<- ifelse( (i$test == 1)&(i$diff <= 7) ,1,0)
-  
-  
-  sumupsetcorrect <- sum(i$correct)
-  
-  seedupsetcorrectr2 <-append(seedupsetcorrectr2,sumupsetcorrect)
-  
-  
-}
 
-tsnewwintotal <- tsupsetcorrectr1 + tsupsetcorrectr2 
-etsnewwintotal <- etsupsetcorrectr1 + etsupsetcorrectr2 
-seednewwintotal <- seedupsetcorrectr1 + seedupsetcorrectr2 
+
+tsnewwintotal <- tsupsetcorrectr1  
+etsnewwintotal <- etsupsetcorrectr1 
+seednewwintotal <- seedupsetcorrectr1  
 
 newwintotal <- as.data.frame(yearw)
 newwintotal <- rename(newwintotal,Year = yearw)
